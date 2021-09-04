@@ -1,4 +1,4 @@
-import { useContext, useRef } from "react";
+import { useContext, useRef, useState } from "react";
 import ContentEditable, { ContentEditableEvent } from "react-contenteditable";
 import { FiPlus, FiTrash } from "react-icons/fi";
 
@@ -9,6 +9,8 @@ import { Card } from "./Card";
 import styles from "../styles/components/List.module.scss";
 
 export function List({ id, name, cards }: ListProps) {
+  const [showTrashCan, setShowTrashCan] = useState(false);
+
   const text = useRef(name);
 
   const { renameList, removeList, openCreateCardModal } =
@@ -35,7 +37,11 @@ export function List({ id, name, cards }: ListProps) {
   }
 
   return (
-    <div className={styles.list}>
+    <div
+      className={styles.list}
+      onMouseEnter={() => setShowTrashCan(true)}
+      onMouseLeave={() => setShowTrashCan(false)}
+    >
       <header>
         <h2>
           <ContentEditable
@@ -45,9 +51,11 @@ export function List({ id, name, cards }: ListProps) {
           />
         </h2>
 
-        <button type="button" onClick={handleRemoveList} className="123">
-          <FiTrash size={20} color="#757575" />
-        </button>
+        {showTrashCan && (
+          <button type="button" onClick={handleRemoveList} className="123">
+            <FiTrash size={20} color="#757575" />
+          </button>
+        )}
       </header>
 
       <ul>
