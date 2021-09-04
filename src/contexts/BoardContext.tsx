@@ -1,14 +1,21 @@
-import { createContext, ReactNode, useCallback, useState } from "react";
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 
 import { List } from "../types";
 
-import { saveDataInStorage } from "../utils/storage";
+import { saveDataInStorage, getDataFromStorage } from "../utils/storage";
 import { generateID } from "../utils/generateID";
 
 interface BoardContext {
   lists: List[];
   addList: (name: string) => void;
   removeList: (id: string) => void;
+  renameList: (id: string, name: string) => void;
 }
 
 interface BoardContextProviderProps {
@@ -19,6 +26,10 @@ export const BoardContext = createContext({} as BoardContext);
 
 export function BoardContextProvider({ children }: BoardContextProviderProps) {
   const [lists, setLists] = useState<List[]>([]);
+
+  useEffect(() => {
+    setLists(getDataFromStorage());
+  }, []);
 
   function updateData(nesLists: List[]) {
     setLists(nesLists);
@@ -53,8 +64,23 @@ export function BoardContextProvider({ children }: BoardContextProviderProps) {
     [lists]
   );
 
+  const renameList = useCallback(
+    (id: string, name: string) => {
+      const newData = lists.map((list) => {
+        if (list.id === id) {
+          list.name = name;
+        }
+
+        return list;
+      });
+
+      updateData(newData);
+    },
+    [lists]
+  );
+
   return (
-    <BoardContext.Provider value={{ lists, addList, removeList }}>
+    <BoardContext.Provider value={{ lists, addList, removeList, renameList }}>
       {children}
     </BoardContext.Provider>
   );
