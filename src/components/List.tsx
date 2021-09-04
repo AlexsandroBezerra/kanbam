@@ -3,19 +3,19 @@ import ContentEditable, { ContentEditableEvent } from "react-contenteditable";
 import { FiPlus, FiTrash } from "react-icons/fi";
 
 import { List as ListProps } from "../types";
+import { BoardContext } from "../contexts/BoardContext";
+import { Card } from "./Card";
 
 import styles from "../styles/components/List.module.scss";
-import { BoardContext } from "../contexts/BoardContext";
 
 export function List({ id, name, cards }: ListProps) {
   const text = useRef(name);
 
-  const { renameList, removeList } = useContext(BoardContext);
+  const { renameList, removeList, openCreateCardModal } =
+    useContext(BoardContext);
 
   function handleChange(event: ContentEditableEvent) {
-    if (event.target.value.length < 20) {
-      text.current = event.target.value;
-    }
+    text.current = event.target.value;
   }
 
   function handleBlur() {
@@ -30,6 +30,10 @@ export function List({ id, name, cards }: ListProps) {
     }
   }
 
+  function handleCreateCard() {
+    openCreateCardModal(id);
+  }
+
   return (
     <div className={styles.list}>
       <header>
@@ -41,14 +45,25 @@ export function List({ id, name, cards }: ListProps) {
           />
         </h2>
 
-        <button type="button" onClick={handleRemoveList}>
+        <button type="button" onClick={handleRemoveList} className="123">
           <FiTrash size={20} color="#757575" />
         </button>
       </header>
 
-      <ul></ul>
+      <ul>
+        {cards.map((card) => {
+          return (
+            <Card
+              id={card.id}
+              key={card.id}
+              title={card.title}
+              description={card.description}
+            />
+          );
+        })}
+      </ul>
 
-      <button type="button">
+      <button type="button" onClick={handleCreateCard}>
         <FiPlus size={24} color="#757575" />
       </button>
     </div>

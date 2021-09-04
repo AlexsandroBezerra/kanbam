@@ -6,16 +6,19 @@ import {
   useState,
 } from "react";
 
-import { List } from "../types";
+import { Card, List } from "../types";
 
-import { saveDataInStorage, getDataFromStorage } from "../utils/storage";
+import { getDataFromStorage, saveDataInStorage } from "../utils/storage";
 import { generateID } from "../utils/generateID";
+import { CreateCardModal } from "../components/CreateCardModal";
 
 interface BoardContext {
   lists: List[];
   addList: (name: string) => void;
   removeList: (id: string) => void;
   renameList: (id: string, name: string) => void;
+  openCreateCardModal: (listId: string) => void;
+  createCard: (card: Omit<Card, "id">) => void;
 }
 
 interface BoardContextProviderProps {
@@ -26,14 +29,16 @@ export const BoardContext = createContext({} as BoardContext);
 
 export function BoardContextProvider({ children }: BoardContextProviderProps) {
   const [lists, setLists] = useState<List[]>([]);
+  const [isCreateCardModalOpen, setIsCreateCardModalOpen] = useState(false);
+  const [creatingListId, setCreatingListId] = useState("");
 
   useEffect(() => {
     setLists(getDataFromStorage());
   }, []);
 
-  function updateData(nesLists: List[]) {
-    setLists(nesLists);
-    saveDataInStorage(nesLists);
+  function updateData(newLists: List[]) {
+    setLists(newLists);
+    saveDataInStorage(newLists);
   }
 
   const addList = useCallback(
@@ -44,9 +49,7 @@ export function BoardContextProvider({ children }: BoardContextProviderProps) {
         cards: [],
       };
 
-      const nesLists = [...lists];
-
-      nesLists.push(newList);
+      const nesLists = [...lists, newList];
 
       updateData(nesLists);
     },
@@ -79,9 +82,55 @@ export function BoardContextProvider({ children }: BoardContextProviderProps) {
     [lists]
   );
 
+  const createCard = useCallback(
+    (cardData: Omit<Card, "id">) => {
+      if (!creatingListId.length) {
+        return;
+      }
+
+      const newCard = { id: generateID(), ...cardData };
+
+      console.log(newCard);
+
+      const newData = lists.map((list) => {
+        if (list.id === creatingListId) {
+          list.cards.push(newCard);
+        }
+
+        return list;
+      });
+
+      updateData(newData);
+    },
+    [creatingListId, lists]
+  );
+
+  const openCreateCardModal = useCallback((listId: string) => {
+    setCreatingListId(listId);
+    setIsCreateCardModalOpen(true);
+  }, []);
+
+  const closeCreateCardModal = useCallback(() => {
+    setIsCreateCardModalOpen(false);
+  }, []);
+
   return (
-    <BoardContext.Provider value={{ lists, addList, removeList, renameList }}>
+    <BoardContext.Provider
+      value={{
+        lists,
+        addList,
+        removeList,
+        renameList,
+        openCreateCardModal,
+        createCard,
+      }}
+    >
       {children}
+
+      <CreateCardModal
+        isOpen={isCreateCardModalOpen}
+        onRequestClose={closeCreateCardModal}
+      />
     </BoardContext.Provider>
   );
 }
