@@ -1,12 +1,12 @@
 import { createContext, ReactNode, useCallback, useState } from "react";
 
-import { Card, List } from "../types";
+import { List } from "../types";
 
 import { saveDataInStorage } from "../utils/storage";
 import { generateID } from "../utils/generateID";
 
 interface BoardContext {
-  data: Array<List>;
+  lists: List[];
   addList: (name: string) => void;
   removeList: (id: string) => void;
 }
@@ -18,11 +18,11 @@ interface BoardContextProviderProps {
 export const BoardContext = createContext({} as BoardContext);
 
 export function BoardContextProvider({ children }: BoardContextProviderProps) {
-  const [data, setData] = useState<List[]>([]);
+  const [lists, setLists] = useState<List[]>([]);
 
-  function updateData(newData: List[]) {
-    setData(newData);
-    saveDataInStorage(newData);
+  function updateData(nesLists: List[]) {
+    setLists(nesLists);
+    saveDataInStorage(nesLists);
   }
 
   const addList = useCallback(
@@ -30,31 +30,31 @@ export function BoardContextProvider({ children }: BoardContextProviderProps) {
       const newList = {
         id: generateID(),
         name,
-        cards: [] as Card[],
+        cards: [],
       };
 
-      const newData = [...data];
+      const nesLists = [...lists];
 
-      newData.push(newList);
+      nesLists.push(newList);
 
-      updateData(newData);
+      updateData(nesLists);
     },
-    [data]
+    [lists]
   );
 
   const removeList = useCallback(
     (id: string) => {
-      const newData = data.filter((list) => {
+      const newData = lists.filter((list) => {
         return list.id !== id;
       });
 
       updateData(newData);
     },
-    [data]
+    [lists]
   );
 
   return (
-    <BoardContext.Provider value={{ data, addList, removeList }}>
+    <BoardContext.Provider value={{ lists, addList, removeList }}>
       {children}
     </BoardContext.Provider>
   );
