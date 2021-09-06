@@ -90,8 +90,6 @@ export function BoardContextProvider({ children }: BoardContextProviderProps) {
 
       const newCard = { id: generateID(), ...cardData };
 
-      console.log(newCard);
-
       const newData = lists.map((list) => {
         if (list.id === creatingListId) {
           list.cards.push(newCard);

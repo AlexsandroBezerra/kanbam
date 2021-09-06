@@ -1,9 +1,7 @@
+import { DEFAULT_DATA, STORAGE_KEY } from "../constants/storage";
 import { List } from "../types";
 
-const STORAGE_KEY = "@kanbam/data";
-const defaultData: List[] = [];
-
-export function saveDataInStorage(data: any) {
+export function saveDataInStorage(data: List[]) {
   const dataString = JSON.stringify(data);
 
   localStorage.setItem(STORAGE_KEY, dataString);
@@ -18,5 +16,5 @@ export function getDataFromStorage(): List[] {
     return parsedData;
   }
 
-  return defaultData;
+  return DEFAULT_DATA;
 }
