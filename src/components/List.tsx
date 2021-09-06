@@ -7,6 +7,7 @@ import { BoardContext } from "../contexts/BoardContext";
 import { Card } from "./Card";
 
 import styles from "../styles/components/List.module.scss";
+import { useDrop } from "react-dnd";
 
 interface ListProps extends ListType {
   index: number;
@@ -14,8 +15,30 @@ interface ListProps extends ListType {
 
 export function List({ id, name, cards, index: listIndex }: ListProps) {
   const [showTrashCan, setShowTrashCan] = useState(false);
+  const ref = useRef(null);
+  const { moveCard } = useContext(BoardContext);
 
   const text = useRef(name);
+
+  const [, dropRef] = useDrop({
+    accept: "CARD",
+    hover(item: { id: string; listIndex: number; index: number }, monitor) {
+      const draggedListIndex = item.listIndex;
+      const targetListIndex = listIndex;
+
+      const draggedIndex = item.index;
+
+      moveCard({
+        indexes: {
+          list: { from: draggedListIndex, to: targetListIndex },
+          card: { from: draggedIndex },
+        },
+      });
+
+      item.index = cards.length - 1;
+      item.listIndex = targetListIndex;
+    },
+  });
 
   const { renameList, removeList, openCreateCardModal } =
     useContext(BoardContext);
@@ -40,11 +63,14 @@ export function List({ id, name, cards, index: listIndex }: ListProps) {
     openCreateCardModal(id);
   }
 
+  dropRef(ref);
+
   return (
     <div
       className={styles.list}
       onMouseEnter={() => setShowTrashCan(true)}
       onMouseLeave={() => setShowTrashCan(false)}
+      ref={ref}
     >
       <header>
         <h2>
