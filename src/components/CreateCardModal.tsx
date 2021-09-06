@@ -32,7 +32,7 @@ export function CreateCardModal({
   onRequestClose,
   ...rest
 }: CreateCardModalProps) {
-  const { register, handleSubmit } = useForm<Omit<Card, "id">>();
+  const { register, handleSubmit, reset } = useForm<Omit<Card, "id">>();
 
   const { createCard } = useContext(BoardContext);
 
@@ -46,6 +46,7 @@ export function CreateCardModal({
   const handleCreateCard = handleSubmit((cardData) => {
     createCard(cardData);
     onRequestClose();
+    reset();
   });
 
   return (
@@ -56,6 +57,7 @@ export function CreateCardModal({
 
       <form onSubmit={handleCreateCard} className={styles.CreateCardModalForm}>
         <input
+          autoFocus
           type="text"
           placeholder="Título"
           {...register("title", { required: true })}
