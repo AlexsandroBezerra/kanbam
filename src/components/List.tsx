@@ -2,13 +2,17 @@ import { useContext, useRef, useState } from "react";
 import ContentEditable, { ContentEditableEvent } from "react-contenteditable";
 import { FiPlus, FiTrash } from "react-icons/fi";
 
-import { List as ListProps } from "../types";
+import { List as ListType } from "../types";
 import { BoardContext } from "../contexts/BoardContext";
 import { Card } from "./Card";
 
 import styles from "../styles/components/List.module.scss";
 
-export function List({ id, name, cards }: ListProps) {
+interface ListProps extends ListType {
+  index: number;
+}
+
+export function List({ id, name, cards, index: listIndex }: ListProps) {
   const [showTrashCan, setShowTrashCan] = useState(false);
 
   const text = useRef(name);
@@ -59,13 +63,15 @@ export function List({ id, name, cards }: ListProps) {
       </header>
 
       <ul>
-        {cards.map((card) => {
+        {cards.map((card, index) => {
           return (
             <Card
               id={card.id}
               key={card.id}
               title={card.title}
               description={card.description}
+              listIndex={listIndex}
+              index={index}
             />
           );
         })}

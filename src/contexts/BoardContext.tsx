@@ -6,7 +6,7 @@ import {
   useState,
 } from "react";
 
-import { Card, List } from "../types";
+import { Card, List, MoveCardParams } from "../types";
 
 import { getDataFromStorage, saveDataInStorage } from "../utils/storage";
 import { generateID } from "../utils/generateID";
@@ -19,6 +19,7 @@ interface BoardContext {
   renameList: (id: string, name: string) => void;
   openCreateCardModal: (listId: string) => void;
   createCard: (card: Omit<Card, "id">) => void;
+  moveCard: (params: MoveCardParams) => void;
 }
 
 interface BoardContextProviderProps {
@@ -103,6 +104,25 @@ export function BoardContextProvider({ children }: BoardContextProviderProps) {
     [creatingListId, lists]
   );
 
+  const moveCard = useCallback(
+    ({ indexes }: MoveCardParams) => {
+      const newLists = [...lists];
+
+      const draggedCard = newLists[indexes.list.from].cards[indexes.card.from];
+
+      if (indexes.card.to !== undefined) {
+        newLists[indexes.list.from].cards.splice(indexes.card.from, 1);
+        newLists[indexes.list.to].cards.splice(indexes.card.to, 0, draggedCard);
+      } else {
+        newLists[indexes.list.from].cards.splice(indexes.card.from, 1);
+        newLists[indexes.list.to].cards.push(draggedCard);
+      }
+
+      updateData(newLists);
+    },
+    [lists]
+  );
+
   const openCreateCardModal = useCallback((listId: string) => {
     setCreatingListId(listId);
     setIsCreateCardModalOpen(true);
@@ -121,6 +141,7 @@ export function BoardContextProvider({ children }: BoardContextProviderProps) {
         renameList,
         openCreateCardModal,
         createCard,
+        moveCard,
       }}
     >
       {children}

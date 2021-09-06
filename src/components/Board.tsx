@@ -11,13 +11,14 @@ export function Board() {
 
   return (
     <main className={styles.board}>
-      {lists.map((list) => {
+      {lists.map((list, index) => {
         return (
           <List
             key={list.id}
             id={list.id}
             name={list.name}
             cards={list.cards}
+            index={index}
           />
         );
       })}

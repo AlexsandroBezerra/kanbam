@@ -9,3 +9,16 @@ export interface List {
   name: string;
   cards: Card[];
 }
+
+export interface MoveCardParams {
+  indexes: {
+    list: {
+      from: number;
+      to: number;
+    };
+    card: {
+      from: number;
+      to?: number;
+    };
+  };
+}
